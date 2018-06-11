@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+      html, body {
+        height: 100%;
+        margin: 0px;
+      }
+      .container {
+        position: absolute;
+        height: 600px;
+        width: 600px;
+        background: -webkit-linear-gradient(top, transparent 19px, #000 20px),
+        -webkit-linear-gradient(left, #ccc   19px, #000 20px);
+        background-size: 20px 20px;
+        border-top: 1px solid #000;
+        border-left: 1px solid #000;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        cursor: pointer;
+      }
+      .dot {
+        position: absolute;
+        width: 17px;
+        height: 17px;
+        border-radius: 8.5px;
+      }
+      .white {
+        background: #fff;
+      }
+      .black {
+        background: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+    </div>
+  </body>
+  <script type="text/javascript">
+    var container = document.getElementsByClassName('container')[0];
+    var colorArr = {
+      0: {
+        eng: 'white',
+        cn: '白棋'
+      },
+      1: {
+        eng: 'black',
+        cn: '黑棋'
+      }
+    };
+
+    var initColor = 0;
+    var whiteArr = [];
+    var blackArr = [];
+    function clickEvent() {
+      container.addEventListener("click", function(el) {
+       var pos = [parseInt(el.offsetX / 20), parseInt(el.offsetY / 20)];
+       if (el.eventPhase === 2 && !findInArr(whiteArr, pos) && !findInArr(blackArr, pos)) {
+         var id = guid();
+         renderDot(pos, colorArr[initColor].eng, id);
+         if (initColor) {
+           blackArr.push(pos);
+         } else {
+           whiteArr.push(pos);
+         }
+         rollbackTime(function() {
+           if (checkWinner(pos)) {
+             alert(`${colorArr[initColor].cn}获胜`);
+             clearContainer();
+           } else {
+             initColor = !initColor ? 1 : 0;
+           }
+         }, id);
+       }
+     });
+    }
+
+    function clearContainer() {
+      var childList = container.childNodes;
+      for (var i = childList.length - 1; i >= 0; i--){
+          container.removeChild(childList[i]);
+      }
+      initColor = 0;
+      whiteArr = [];
+      blackArr = [];
+    }
+
+    function rollbackTime(callback, id) {
+      var timer = setInterval(function() {
+        if (document.getElementById(id)) {
+          callback();
+          clearInterval(timer);
+        }
+      }, 50);
+    }
+    function checkWinner(pos) {
+      var arr = initColor ? blackArr : whiteArr;
+      if (findInArr(arr, [pos[0] - 1, pos[1]]) &&
+          findInArr(arr, [pos[0] - 2, pos[1]]) &&
+          findInArr(arr, [pos[0] - 3, pos[1]]) &&
+          findInArr(arr, [pos[0] - 4, pos[1]])) {
+        return true;
+      }
+      if (findInArr(arr, [pos[0] + 1, pos[1]]) &&
+          findInArr(arr, [pos[0] + 2, pos[1]]) &&
+          findInArr(arr, [pos[0] + 3, pos[1]]) &&
+          findInArr(arr, [pos[0] + 4, pos[1]])) {
+        return true;
+      }
+      if (findInArr(arr, [pos[0], pos[1] - 1]) &&
+          findInArr(arr, [pos[0], pos[1] - 2]) &&
+          findInArr(arr, [pos[0], pos[1] - 3]) &&
+          findInArr(arr, [pos[0], pos[1] - 4])) {
+        return true;
+      }
+      if (findInArr(arr, [pos[0], pos[1] + 1]) &&
+          findInArr(arr, [pos[0], pos[1] + 2]) &&
+          findInArr(arr, [pos[0], pos[1] + 3]) &&
+          findInArr(arr, [pos[0], pos[1] + 4])) {
+        return true;
+      }
+      if (findInArr(arr, [pos[0] - 1, pos[1] - 1]) &&
+          findInArr(arr, [pos[0] - 2, pos[1] - 2]) &&
+          findInArr(arr, [pos[0] - 3, pos[1] - 3]) &&
+          findInArr(arr, [pos[0] - 4, pos[1] - 4])) {
+        return true;
+      }
+      if (findInArr(arr, [pos[0] + 1, pos[1] + 1]) &&
+          findInArr(arr, [pos[0] + 2, pos[1] + 2]) &&
+          findInArr(arr, [pos[0] + 3, pos[1] + 3]) &&
+          findInArr(arr, [pos[0] + 4, pos[1] + 4])) {
+        return true;
+      }
+      if (findInArr(arr, [pos[0] - 1, pos[1] + 1]) &&
+          findInArr(arr, [pos[0] - 2, pos[1] + 2]) &&
+          findInArr(arr, [pos[0] - 3, pos[1] + 3]) &&
+          findInArr(arr, [pos[0] - 4, pos[1] + 4])) {
+        return true;
+      }
+      if (findInArr(arr, [pos[0] + 1, pos[1] - 1]) &&
+          findInArr(arr, [pos[0] + 2, pos[1] - 2]) &&
+          findInArr(arr, [pos[0] + 3, pos[1] - 3]) &&
+          findInArr(arr, [pos[0] + 4, pos[1] - 4])) {
+        return true;
+      }
+      return false;
+    }
+
+    function renderDot(pos, color, id) {
+      var childDiv = document.createElement('div');
+      childDiv.setAttribute('class', 'dot');
+      childDiv.setAttribute('id', id);
+      childDiv.classList.add(color);
+      childDiv.style.left = `${pos[0] * 20 + 1}px`;
+      childDiv.style.top = `${pos[1] * 20 + 1}px`;
+      container.appendChild(childDiv);
+    }
+
+    function guid() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+      });
+    }
+
+    function findInArr(arr, pos) {
+      var length = arr.length;
+      for (var i = 0; i < length; i++) {
+        if (JSON.stringify(arr[i]) === JSON.stringify(pos)) {
+          return true;
+        }
+      }
+      return false;
+    }
+    clickEvent();
+  </script>
+</html>
