@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+  </body>
+  <script type="text/javascript">
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+    var scale = 10;
+    var precision = 500;
+    var index = 1;
+    var coorArr = [];
+    function getSimCoor(tmp) {
+      // var x = scale * (2 * Math.cos(tmp) - Math.cos(2 * tmp));
+      // var y = scale * (2 * Math.sin(tmp) - Math.sin(2 * tmp));
+      var x = scale * (16 * Math.pow(Math.sin(tmp), 3));
+      var y = scale * (13 * Math.cos(tmp) - 5 * Math.cos(2 * tmp) - 2 *  Math.cos(3 * tmp) - Math.cos(4 * tmp));
+      return [x, -y];
+    }
+    function getAllCoor() {
+      var pi = Math.PI;
+      for (var i = 0; i <= precision; i++) {
+        coorArr.push(getSimCoor(-pi + (2 * pi / precision) * i));
+      }
+    }
+    function draw() {
+      ctx.translate(250, 250);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      //ctx.rotate(-Math.PI / 2);
+      getAllCoor();
+      ctx.moveTo(coorArr[0][0], coorArr[0][1]);
+      requestAnimationFrame(drawSingleLine);
+    }
+    function drawSingleLine() {
+      if (index <= precision) {
+        requestAnimationFrame(drawSingleLine);
+      } else {
+        return;
+      }
+      ctx.lineTo(coorArr[index][0], coorArr[index][1]);
+      ctx.strokeStyle = 'red';
+      ctx.stroke();
+      index++;
+    }
+    draw();
+  </script>
+</html>
