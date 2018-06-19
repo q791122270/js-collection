@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      .chat-member {width: 100%; height: 32px;line-height: 32px;}
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+    </style>
+  </head>
+  <body>
+    <div class="chat-member"></div>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script>
+    $(function () {
+      var socket = io();
+      var id = generateMixed(4);
+
+      $('form').submit(function(){
+        let data = {
+          id: id,
+          msg: $('#m').val()
+        };
+        socket.emit('chat message', data);
+        $('#m').val('');
+        return false;
+      });
+      $('#m').on('input', function() {
+        socket.emit('chat member', id);
+      });
+      $('#m').on('blur', function() {
+        socket.emit('chat member', '');
+      });
+      socket.on('chat message', function(data){
+        $('#messages').append($('<li>').text(`${data.id}：${data.msg}`));
+      });
+      socket.on('chat member', function(msg){
+        $('.chat-member').html(msg);
+      });
+    });
+
+    function generateMixed(n) {
+      var chars = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
+      var res = "";
+      for(var i = 0; i < n ; i ++) {
+        var id = Math.ceil(Math.random() * 26);
+        res += chars[id];
+      }
+      return res;
+    }
+  </script>
+</html>
